@@ -36,7 +36,7 @@ import {
   generateAIQuiz,
   checkServerHealth
 } from './services/api';
-import { Sparkles, Brain, BookOpen } from 'lucide-react';
+import { Sparkles, Brain, BookOpen, Key } from 'lucide-react';
 
 export default function App() {
   // App settings & Language
@@ -83,9 +83,11 @@ export default function App() {
   };
 
   // Check backend server health & Gemini API key on mount
+  const [isStaticMode, setIsStaticMode] = useState(false);
   useEffect(() => {
     checkServerHealth().then((health) => {
       setHasServerKey(health.hasServerKey);
+      setIsStaticMode(health.status === 'static');
     });
   }, []);
 
@@ -127,6 +129,9 @@ export default function App() {
       setRecentSearches(addRecentSearch(result.word, language));
     } catch (err: any) {
       addToast(err.message || 'Gagal menganalisis kosakata.', 'error');
+      if (err.message && err.message.includes('Kunci API')) {
+        setIsSettingsOpen(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -148,6 +153,9 @@ export default function App() {
       addToast(`Kosakata acak ditemukan: ${result.word}`, 'success');
     } catch (err: any) {
       addToast(err.message || 'Gagal memuat kosakata acak.', 'error');
+      if (err.message && err.message.includes('Kunci API')) {
+        setIsSettingsOpen(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -269,6 +277,9 @@ export default function App() {
       setQuizQuestions(questions);
     } catch (err: any) {
       addToast(err.message || 'Gagal membuat kuis AI.', 'error');
+      if (err.message && err.message.includes('Kunci API')) {
+        setIsSettingsOpen(true);
+      }
       setIsQuizOpen(false);
     } finally {
       setIsQuizLoading(false);
@@ -363,6 +374,32 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Static Vercel Notice Banner */}
+        {isStaticMode && !settings.apiKey && (
+          <div className="mb-6 bg-indigo-50/90 border border-indigo-200/80 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-slate-800 animate-fadeIn">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <Key className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-indigo-950">
+                  Mode Hosting Statis (Vercel) Terdeteksi
+                </h4>
+                <p className="text-[11px] sm:text-xs text-indigo-700">
+                  Agar Gemini AI dapat berjalan langsung di Vercel tanpa server backend, masukkan API Key gratis Anda.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-2xs whitespace-nowrap shrink-0"
+            >
+              Masukkan API Key
+            </button>
+          </div>
+        )}
+
         {/* Quick Review Announcement Banner if due cards exist */}
         {dueWords.length > 0 && activeTab === 'search' && (
           <div className="mb-6 bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-4 text-white shadow-xs flex items-center justify-between gap-4">
