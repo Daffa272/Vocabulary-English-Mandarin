@@ -1,0 +1,6 @@
+{
+  "name": "VocabMaster AI - TOEFL & Academic Vocabulary",
+  "description": "Aplikasi modern penerjemah dan analisis TOEFL & Mandarin dengan Spaced Repetition flashcards, latihan pengucapan suara, dan kuis akademik bertenaga Gemini AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
